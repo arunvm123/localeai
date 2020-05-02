@@ -1,9 +1,11 @@
 package main
 
 import (
+	"encoding/json"
 	"flag"
-	"log"
 	"sync"
+
+	log "github.com/sirupsen/logrus"
 
 	"github.com/arunvm/locale/config"
 	"github.com/arunvm/locale/models"
@@ -52,7 +54,33 @@ func main() {
 	defer server.nats.Close()
 
 	_, err = server.nats.Subscribe("data", func(msg *nats.Msg) {
-		log.Printf("%s", msg.Data)
+		var bd models.BookingDetail
+
+		err = json.Unmarshal(msg.Data, &bd)
+		if err != nil {
+			log.WithFields(log.Fields{
+				"subFunc": "json.Unmarshal",
+			}).Error(err)
+			return
+		}
+
+		err = models.CreateBookingDetail(server.db, &bd)
+		if err != nil {
+			log.WithFields(log.Fields{
+				"subFunc": "models.CreateBookingDetail",
+			}).Error(err)
+			return
+		}
+
+		err = msg.Respond([]byte("Message recieved sucessfully"))
+		if err != nil {
+			log.WithFields(log.Fields{
+				"subFunc": "msg.Respond",
+			}).Error(err)
+			return
+		}
+
+		log.Printf("Message: %v", bd)
 	})
 
 	log.Println("Server subscribed to queue")

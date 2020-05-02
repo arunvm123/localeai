@@ -31,6 +31,6 @@ func Initialise(filepath string) (*config, error) {
 	return &configuration, nil
 }
 
-func GetConfig() (*config, error) {
-	return &configuration, nil
+func GetConfig() *config {
+	return &configuration
 }
