@@ -3,15 +3,18 @@ package main
 import (
 	"flag"
 	"log"
+	"sync"
 
 	"github.com/arunvm/locale/config"
 	"github.com/arunvm/locale/models"
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/postgres"
+	"github.com/nats-io/nats.go"
 )
 
 type server struct {
-	db *gorm.DB
+	db   *gorm.DB
+	nats *nats.Conn
 }
 
 func newServer() *server {
@@ -35,9 +38,26 @@ func main() {
 	// "host=myhost port=myport user=gorm dbname=gorm password=mypassword"
 	server.db, err = gorm.Open("postgres", "host= "+config.Database.Host+" port="+config.Database.Port+" user="+config.Database.User+" dbname="+config.Database.DatabaseName+" password="+config.Database.Password+" sslmode=disable")
 	if err != nil {
-		panic(err)
+		log.Fatalf("Failed to connect to database\n%v", err)
 	}
 
 	server.db.LogMode(true)
 	models.MigrateDB(server.db)
+
+	// Message broker
+	server.nats, err = nats.Connect(config.NatsURL)
+	if err != nil {
+		log.Fatalf("Failed to connect to  nats server\n%v", err)
+	}
+	defer server.nats.Close()
+
+	_, err = server.nats.Subscribe("data", func(msg *nats.Msg) {
+		log.Printf("%s", msg.Data)
+	})
+
+	log.Println("Server subscribed to queue")
+
+	wg := sync.WaitGroup{}
+	wg.Add(1)
+	wg.Wait()
 }

@@ -8,6 +8,7 @@ var configuration config
 
 type config struct {
 	Port     string         `yaml:"port"`
+	NatsURL  string         `yaml:"nats_url"`
 	Database databaseConfig `yaml:"database"`
 }
 
