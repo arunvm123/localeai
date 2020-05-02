@@ -5,6 +5,7 @@ import (
 	"log"
 
 	"github.com/arunvm/locale/config"
+	"github.com/arunvm/locale/models"
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/postgres"
 )
@@ -36,4 +37,7 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
+
+	server.db.LogMode(true)
+	models.MigrateDB(server.db)
 }
