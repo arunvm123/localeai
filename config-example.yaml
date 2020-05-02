@@ -1,0 +1,7 @@
+port: "<PORT>"
+database:
+  host: "<HOST>"
+  user: "<USER>"
+  password: "<PASSWORD>"
+  database_name: "<DATABASE_NAME>"
+  port: "<PORT>"
