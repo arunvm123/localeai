@@ -1,9 +1,10 @@
 package main
 
 import (
-	"encoding/json"
 	"flag"
 	"sync"
+
+	msgbroker "github.com/arunvm/locale/message_broker"
 
 	log "github.com/sirupsen/logrus"
 
@@ -53,35 +54,7 @@ func main() {
 	}
 	defer server.nats.Close()
 
-	_, err = server.nats.Subscribe("data", func(msg *nats.Msg) {
-		var bd models.BookingDetail
-
-		err = json.Unmarshal(msg.Data, &bd)
-		if err != nil {
-			log.WithFields(log.Fields{
-				"subFunc": "json.Unmarshal",
-			}).Error(err)
-			return
-		}
-
-		err = models.CreateBookingDetail(server.db, &bd)
-		if err != nil {
-			log.WithFields(log.Fields{
-				"subFunc": "models.CreateBookingDetail",
-			}).Error(err)
-			return
-		}
-
-		err = msg.Respond([]byte("Message recieved sucessfully"))
-		if err != nil {
-			log.WithFields(log.Fields{
-				"subFunc": "msg.Respond",
-			}).Error(err)
-			return
-		}
-
-		log.Printf("Message: %v", bd)
-	})
+	msgbroker.Subscribe(server.nats, "data", server.consumer())
 
 	log.Println("Server subscribed to queue")
 
