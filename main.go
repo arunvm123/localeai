@@ -2,7 +2,9 @@ package main
 
 import (
 	"flag"
-	"sync"
+	"os"
+	"os/signal"
+	"syscall"
 
 	msgbroker "github.com/arunvm/locale/message_broker"
 
@@ -54,11 +56,23 @@ func main() {
 	}
 	defer server.nats.Close()
 
-	msgbroker.Subscribe(server.nats, "data", server.consumer())
+	sub, err := msgbroker.Subscribe(server.nats, "data", server.consumer())
+	if err != nil {
+		log.Fatalf("Failed to subscribe to message broker\n%v", err)
+	}
 
 	log.Println("Server subscribed to queue")
 
-	wg := sync.WaitGroup{}
-	wg.Add(1)
-	wg.Wait()
+	// Handle sigterm and await termChan signal
+	termChan := make(chan os.Signal)
+	signal.Notify(termChan, syscall.SIGINT, syscall.SIGTERM)
+
+	<-termChan
+
+	log.Println("Server terminating")
+
+	err = sub.Drain()
+	if err != nil {
+		log.Fatalf("Error when draining message broker\n%v", err)
+	}
 }
