@@ -1,7 +1,7 @@
 package msgbroker
 
 import (
-	"log"
+	log "github.com/sirupsen/logrus"
 
 	"github.com/nats-io/nats.go"
 )
@@ -9,7 +9,11 @@ import (
 func Subscribe(nats *nats.Conn, subject string, callback func(msg *nats.Msg)) (*nats.Subscription, error) {
 	sub, err := nats.Subscribe(subject, callback)
 	if err != nil {
-		log.Fatalf("Error in message broker\n%v", err)
+		log.WithFields(log.Fields{
+			"func":    "Subscribe",
+			"subFunc": "nats.Subscribe",
+			"subject": subject,
+		}).Error(err)
 		return nil, err
 	}
 

@@ -30,6 +30,8 @@ func newServer() *server {
 func main() {
 	server := newServer()
 
+	log.SetFormatter(&log.JSONFormatter{})
+
 	// Reading file path from flag
 	filePath := flag.String("config-path", "config.yaml", "filepath to configuration file")
 	flag.Parse()
@@ -61,7 +63,7 @@ func main() {
 		log.Fatalf("Failed to subscribe to message broker\n%v", err)
 	}
 
-	log.Println("Server subscribed to queue")
+	log.Println("Subscribed to message broker")
 
 	// Handle sigterm and await termChan signal
 	termChan := make(chan os.Signal)
@@ -69,7 +71,7 @@ func main() {
 
 	<-termChan
 
-	log.Println("Server terminating")
+	log.Println("Terminating...")
 
 	err = sub.Drain()
 	if err != nil {

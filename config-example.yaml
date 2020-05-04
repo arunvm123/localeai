@@ -1,4 +1,3 @@
-port: "<PORT>"
 nats_url: "<NATS_URL>"
 database:
   host: "<HOST>"

@@ -49,10 +49,9 @@ func (server *server) consumer() func(msg *nats.Msg) {
 		if err != nil {
 			log.WithFields(log.Fields{
 				"func":    "consumer",
-				"subFunc": "models.CreateBookingDetail",
+				"subFunc": "models.SaveBookingDetail",
 				"id":      bd.ID,
 			}).Error(err)
-
 			handleResponse(msg, bd.ID, fail, err.Error())
 			return
 		}

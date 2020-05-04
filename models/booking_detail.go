@@ -45,7 +45,7 @@ func SaveBookingDetail(db *gorm.DB, bd *BookingDetail) error {
 	if err != nil {
 		log.WithFields(log.Fields{
 			"func":          "CreateBookingDetail",
-			"subFunc":       "CreateBookingDetail",
+			"subFunc":       "bd.Save",
 			"bookingDetail": *bd,
 		}).Error(err)
 		return err
