@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 
 	"github.com/arunvm/locale/models"
+	"github.com/go-playground/validator"
 	"github.com/nats-io/nats.go"
 	log "github.com/sirupsen/logrus"
 )
@@ -32,7 +33,19 @@ func (server *server) consumer() func(msg *nats.Msg) {
 			return
 		}
 
-		err = models.CreateBookingDetail(server.db, &bd)
+		err = validator.New().Struct(&bd)
+		if err != nil {
+			log.WithFields(log.Fields{
+				"func":    "consumer",
+				"subFunc": "validator.New().Struct",
+				"id":      bd.ID,
+			}).Error(err)
+			handleResponse(msg, bd.ID, fail, err.Error())
+			return
+
+		}
+
+		err = models.SaveBookingDetail(server.db, &bd)
 		if err != nil {
 			log.WithFields(log.Fields{
 				"func":    "consumer",
@@ -41,9 +54,11 @@ func (server *server) consumer() func(msg *nats.Msg) {
 			}).Error(err)
 
 			handleResponse(msg, bd.ID, fail, err.Error())
+			return
 		}
 
 		handleResponse(msg, bd.ID, success, "")
+		return
 	}
 }
 
