@@ -16,11 +16,11 @@ type BookingDetail struct {
 	ToAreaID          *int     `json:"toAreaID"`
 	FromCityID        *int     `json:"fromCityID"`
 	ToCityID          *int     `json:"toCityID"`
-	FromDate          int64    `json:"fromDate" validate:"required"`
-	ToDate            int64    `json:"toDate" validate:"required"`
+	FromDate          string   `json:"fromDate" validate:"required"`
+	ToDate            string   `json:"toDate" validate:"required"`
 	MobileSiteBooking bool     `json:"mobileSiteBooking"`
 	OnlineBooking     bool     `json:"onlineBooking"`
-	BookingCreated    int64    `json:"bookingCreated" validate:"required"`
+	BookingCreated    string   `json:"bookingCreated" validate:"required"`
 	FromLat           float64  `json:"fromLat" validate:"required"`
 	FromLong          float64  `json:"fromLong" validate:"required"`
 	ToLat             *float64 `json:"toLat"`

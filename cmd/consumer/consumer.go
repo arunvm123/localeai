@@ -30,6 +30,7 @@ func (server *server) consumer() func(msg *nats.Msg) {
 				"func":    "consumer",
 				"subFunc": "json.Unmarshal",
 			}).Error(err)
+			handleResponse(msg, 0, fail, err.Error())
 			return
 		}
 
