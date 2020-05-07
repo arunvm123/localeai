@@ -11,9 +11,20 @@ the data is accepted and a way to track if the request fails.
 
 ![Alt](https://i.imgur.com/zheO4Jt.jpg)
 
-The service is dependant on 
-*[NATS](https://nats.io/) (Message broker)
-*Postgres
+I decided to build a microservice architecture with Golang for this task because of it's concurrency model, which is relatively easy to implement, and its design as a static, compiled language would enable a distributed eventing systems that could perform at scale. Also, many companies have made the switch to Golang for their microservices, so it is a proven tool for this space.
+
+I chose [NATS](https://nats.io/) for the message broker because it is a simple, secure, and high-performance open source messaging system for microservice architecture and is written in Golang. It also had some features that made it easier for me to send an acknowledgement after the data is processed.
+
+The producer is the external facing service that XRides can communicate via REST API. It sends the booking detail to it and the producer pushes it to the message broker. The consumer reads it from the message broker and saves it into Postgres. Then the response is pushed into another message broker, which is picked up by the producer that initiated the request.
+
+The response is picked up by the producer and then is relayed back to XRides. If the response is successful, then everything worked perfectly. If there is an error for some reason, XRides can retry the request. The error response will contain the ID of the booking detail and the error message
+
+## Ideal Architecture
+
+- The microservice uses REST and JSON encoding now. I would like to look into gRPC and protobuf
+- Use Kubernetes to manage deployment, scaling, load balancing etc
+- Store and properly manage logging
+- Setup monitoring and alerting
 
 # How to run?
 
